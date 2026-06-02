@@ -6,6 +6,11 @@ import { FileText } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
+type PolicyContent = {
+  title: string;
+  content: string;
+};
+
 interface PolicyPageProps {
   params: Promise<{ id: string }>;
 }
@@ -13,17 +18,21 @@ interface PolicyPageProps {
 export default async function PolicyPage({ params }: PolicyPageProps) {
   const { id } = await params;
 
-  let page;
+  let page: PolicyContent | null = null;
   try {
     page = await prisma.cmsPage.findUnique({
       where: { id },
+      select: {
+        title: true,
+        content: true,
+      },
     });
   } catch (error) {
     console.error("Failed to load policy page:", error);
   }
 
   // Fallbacks in case database connection isn't initialized yet
-  const fallbacks: Record<string, { title: string; content: string }> = {
+  const fallbacks: Record<string, PolicyContent> = {
     terms: {
       title: "Terms & Conditions",
       content: "Welcome to NestArrival. We act as a connection layer between tenants and owners. Full terms will be seeded in your database.",
