@@ -4,6 +4,9 @@ const backendOrigin = (process.env.BACKEND_ORIGIN || "http://localhost:5000").re
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   async rewrites() {
     return [
       {

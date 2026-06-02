@@ -7,10 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "db:generate": "prisma generate",
-    "db:push": "prisma db push",
-    "db:seed": "node prisma/seed.js",
-    "db:setup": "prisma db push && node prisma/seed.js"
+    "postinstall": "npm run db:generate",
+    "db:generate": "prisma generate --schema=../backend/prisma/schema.prisma",
+    "db:push": "prisma db push --schema=../backend/prisma/schema.prisma",
+    "db:seed": "node ../backend/prisma/seed.js",
+    "db:setup": "npm run db:push && npm run db:seed"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",
