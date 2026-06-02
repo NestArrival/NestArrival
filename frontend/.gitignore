@@ -1,0 +1,14 @@
+node_modules/
+.next/
+out/
+.env
+.env.*
+.vercel/
+coverage/
+dist/
+build/
+*.tsbuildinfo
+next-env.d.ts
+public/uploads/*
+!public/uploads/.gitkeep
+*.log
