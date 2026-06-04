@@ -372,11 +372,6 @@ export default function SignupPage() {
                       </div>
                     </div>
 
-                    <div className="flex justify-end pt-1">
-                      <button type="button" className="text-xs font-bold text-[#cfa052] hover:text-[#b58942] transition-colors">
-                        Forgot Password?
-                      </button>
-                    </div>
 
                     <button
                       type="submit"

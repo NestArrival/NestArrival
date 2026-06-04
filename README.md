@@ -108,8 +108,29 @@ GOOGLE_CLIENT_ID="your-google-oauth-client-id"
 GOOGLE_CLIENT_SECRET="your-google-oauth-client-secret"
 ```
 
-> 💡 **Note**: In `frontend/.env`, make sure to prepend the client ID with the prefix `NEXT_PUBLIC_`:
-> `NEXT_PUBLIC_GOOGLE_CLIENT_ID="your-google-oauth-client-id"`
+> 📧 **Nodemailer SMTP Configuration Guide**:
+> - **SMTP_USER**: Set this to your sender email address (e.g., `your-email@gmail.com`).
+> - **SMTP_PASS**: This should be your SMTP credentials password. If you are using **Gmail**, do **NOT** use your standard Google account password. Instead, generate a Google App Password:
+>   1. Go to your Google Account Settings.
+>   2. Enable **2-Step Verification** (required to generate App Passwords).
+>   3. Search for **App passwords** in the search bar.
+>   4. Create a new App Password (e.g., Name: `NestArrival`), and copy the generated 16-character code.
+>   5. Paste the 16-character code as the value for `SMTP_PASS` in your `.env` files.
+>
+> 🔑 **Google Authentication Setup Guide**:
+> - **GOOGLE_CLIENT_ID** & **GOOGLE_CLIENT_SECRET**: Enable users to log in with Google by generating OAuth keys:
+>   1. Go to the [Google Cloud Console](https://console.cloud.google.com/).
+>   2. Configure the **OAuth consent screen** (choose User Type: External, fill in basic app name details).
+>   3. Go to the **Credentials** tab, click **Create Credentials**, and select **OAuth client ID**.
+>   4. Choose **Web application** as the Application Type.
+>   5. Under **Authorized JavaScript origins**, add:
+>      - `http://localhost:3000`
+>   6. Under **Authorized redirect URIs**, add:
+>      - `http://localhost:3000`
+>   7. Click **Create** and copy the client ID and client secret.
+>   8. Set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` in your root and backend `.env`.
+>   9. In `frontend/.env`, you **MUST** write the client ID using the prefix `NEXT_PUBLIC_GOOGLE_CLIENT_ID` so the React browser application can access it:
+>      `NEXT_PUBLIC_GOOGLE_CLIENT_ID="your-google-oauth-client-id"`
 
 ---
 
