@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ShieldCheck, Mail, Lock, KeyRound, AlertCircle, ArrowRight, Eye, EyeOff } from "lucide-react";
+import { Mail, Lock, KeyRound, AlertCircle, ArrowRight, Eye, EyeOff } from "lucide-react";
+import Logo from "@/components/Logo";
 import { motion, AnimatePresence } from "framer-motion";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 
@@ -133,7 +134,7 @@ export default function LoginPage() {
           
           <div className="relative z-10 w-full max-w-2xl px-12 text-[#2c2724]">
             <Link href="/" className="flex items-center space-x-2 group mb-12">
-              <ShieldCheck className="h-10 w-10 text-[#cfa052]" />
+              <Logo className="h-12 w-12 text-[#cfa052]" />
               <span className="text-3xl font-black tracking-tight font-serif text-[#2c2724]">
                 Nest<span className="text-[#cfa052]">Arrival</span>
               </span>
@@ -170,7 +171,7 @@ export default function LoginPage() {
           >
             {/* Mobile Logo (hidden on desktop) */}
             <div className="lg:hidden flex items-center justify-center space-x-2 mb-10">
-              <ShieldCheck className="h-8 w-8 text-[#cfa052]" />
+              <Logo className="h-10 w-10 text-[#cfa052]" />
               <span className="text-2xl font-black font-serif text-[#2c2724]">
                 Nest<span className="text-[#cfa052]">Arrival</span>
               </span>

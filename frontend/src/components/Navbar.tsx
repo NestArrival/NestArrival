@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ShieldCheck, LogOut, Menu, X } from "lucide-react";
+import { LogOut, Menu, X } from "lucide-react";
+import Logo from "./Logo";
 
 export default function Navbar() {
   const [user, setUser] = useState<any>(null);
@@ -45,7 +46,7 @@ export default function Navbar() {
       <div className="mx-auto flex max-w-7xl h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-2 text-[#2c2724] group">
-          <ShieldCheck className="h-6 w-6 text-[#2c2724] transition-transform duration-300 group-hover:scale-110" />
+          <Logo className="h-8 w-8 text-[#2c2724] transition-transform duration-300 group-hover:scale-110" />
           <span className="text-xl font-bold tracking-tight">
             Nest<span className="text-[#2c2724] transition-all duration-300">Arrival</span>
           </span>

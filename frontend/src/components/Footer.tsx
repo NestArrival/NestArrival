@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { ShieldCheck, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import Logo from "./Logo";
 
 export default function Footer() {
   const platformLinks = [
@@ -103,7 +104,7 @@ export default function Footer() {
           {/* Logo & Brand Details */}
           <div className="lg:col-span-3 space-y-4">
             <div className="flex items-center space-x-2">
-              <ShieldCheck className="h-5 w-5 text-[#2c2724]" />
+              <Logo className="h-7 w-7 text-[#2c2724]" />
               <span className="text-lg font-bold tracking-tight text-[#2c2724]">
                 Nest<span className="text-[#2c2724]">Arrival</span>
               </span>
