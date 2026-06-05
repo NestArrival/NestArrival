@@ -172,21 +172,39 @@ exports.createListing = async (req, res) => {
       return res.status(400).json({ error: "All fields are required" });
     }
 
+    const rentValue = parseFloat(rent);
+    if (Number.isNaN(rentValue) || rentValue <= 0) {
+      return res.status(400).json({ error: "Invalid rent value" });
+    }
+
+    const bedroomsValue = parseInt(bedrooms || 1);
+    const bathroomsValue = parseInt(bathrooms || 1);
+    if (Number.isNaN(bedroomsValue) || bedroomsValue < 1) {
+      return res.status(400).json({ error: "Invalid bedrooms value" });
+    }
+    if (Number.isNaN(bathroomsValue) || bathroomsValue < 1) {
+      return res.status(400).json({ error: "Invalid bathrooms value" });
+    }
+
+    const availDate = new Date(availabilityDate);
+    if (Number.isNaN(availDate.getTime())) {
+      return res.status(400).json({ error: "Invalid availability date" });
+    }
+
     const listing = await prisma.listing.create({
       data: {
         ownerId: req.user.id,
         title,
         description,
-        rent: parseFloat(rent),
+        rent: rentValue,
         location,
         city,
-        bedrooms: parseInt(bedrooms || 1),
-        bathrooms: parseInt(bathrooms || 1),
-        availabilityDate: new Date(availabilityDate),
+        bedrooms: bedroomsValue,
+        bathrooms: bathroomsValue,
+        availabilityDate: availDate,
         status: "PENDING_REVIEW",
       },
     });
-
     res.json(listing);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -213,21 +231,68 @@ exports.updateListing = async (req, res) => {
       return res.status(403).json({ error: "Forbidden. Listing not owned." });
     }
 
+    const updates = {};
+    let requiresReview = false;
+
+    if (title !== undefined) {
+      updates.title = title;
+    }
+    if (description !== undefined) {
+      updates.description = description;
+    }
+
+    if (rent !== undefined) {
+      const rentValue = parseFloat(rent);
+      if (Number.isNaN(rentValue) || rentValue <= 0) {
+        return res.status(400).json({ error: "Invalid rent value" });
+      }
+      updates.rent = rentValue;
+      requiresReview = true;
+    }
+
+    if (location !== undefined) {
+      updates.location = location;
+      requiresReview = true;
+    }
+
+    if (city !== undefined) {
+      updates.city = city;
+      requiresReview = true;
+    }
+
+    if (bedrooms !== undefined) {
+      const bedroomsValue = parseInt(bedrooms);
+      if (Number.isNaN(bedroomsValue) || bedroomsValue < 1) {
+        return res.status(400).json({ error: "Invalid bedrooms value" });
+      }
+      updates.bedrooms = bedroomsValue;
+      requiresReview = true;
+    }
+
+    if (bathrooms !== undefined) {
+      const bathroomsValue = parseInt(bathrooms);
+      if (Number.isNaN(bathroomsValue) || bathroomsValue < 1) {
+        return res.status(400).json({ error: "Invalid bathrooms value" });
+      }
+      updates.bathrooms = bathroomsValue;
+      requiresReview = true;
+    }
+
+    if (availabilityDate !== undefined) {
+      const availDate = new Date(availabilityDate);
+      if (Number.isNaN(availDate.getTime())) {
+        return res.status(400).json({ error: "Invalid availability date" });
+      }
+      updates.availabilityDate = availDate;
+    }
+
+    if (requiresReview && item.status === "APPROVED") {
+      updates.status = "PENDING_REVIEW";
+    }
+
     const updated = await prisma.listing.update({
       where: { id: req.params.id },
-      data: {
-        title,
-        description,
-        rent: rent ? parseFloat(rent) : undefined,
-        location,
-        city,
-        bedrooms: bedrooms ? parseInt(bedrooms) : undefined,
-        bathrooms: bathrooms ? parseInt(bathrooms) : undefined,
-        availabilityDate: availabilityDate
-          ? new Date(availabilityDate)
-          : undefined,
-        status: "PENDING_REVIEW",
-      },
+      data: updates,
     });
 
     res.json(updated);
@@ -262,13 +327,14 @@ exports.getSavedListings = async (req, res) => {
       where: { userId: req.user.id },
       include: {
         listing: {
+          where: { status: "APPROVED" },
           include: {
             owner: { select: { id: true, fullName: true, isVerified: true } },
           },
         },
       },
     });
-    res.json(list.map((item) => item.listing));
+    res.json(list.filter((item) => item.listing).map((item) => item.listing));
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -279,6 +345,16 @@ exports.toggleSaveListing = async (req, res) => {
     const { listingId } = req.body;
     if (!listingId) {
       return res.status(400).json({ error: "Listing ID is required" });
+    }
+
+    const listing = await prisma.listing.findUnique({
+      where: { id: listingId },
+    });
+    if (!listing) {
+      return res.status(404).json({ error: "Listing not found" });
+    }
+    if (listing.status !== "APPROVED") {
+      return res.status(400).json({ error: "Cannot save this listing" });
     }
 
     const existing = await prisma.savedListing.findUnique({

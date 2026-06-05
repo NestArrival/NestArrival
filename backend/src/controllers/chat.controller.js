@@ -143,66 +143,86 @@ exports.initiateChat = async (req, res) => {
         .json({ error: "Cannot contact owner for this listing" });
     }
 
-    const activeSub = req.user.subscriptions[0];
+    const activeSub = req.user.subscriptions?.[0];
     if (!activeSub) {
       return res
         .status(403)
         .json({ error: "Active plan required to contact owner" });
     }
 
-    const updatedSub = await prisma.subscription.updateMany({
+    const existingRoom = await prisma.chatRoom.findFirst({
       where: {
-        id: activeSub.id,
-        isActive: true,
-        endDate: { gte: new Date() },
-        OR: [
-          { approachesAllowed: -1 },
-          { approachesUsed: { lt: activeSub.approachesAllowed } },
-        ],
-      },
-      data: {
-        approachesUsed: { increment: 1 },
+        tenantId: req.user.id,
+        listingId,
       },
     });
-
-    if (updatedSub.count === 0) {
-      return res.status(403).json({
-        error: "Subscription approaches limit reached. Upgrade required.",
+    if (existingRoom) {
+      return res.status(400).json({
+        error: "Chat already exists for this listing",
+        roomId: existingRoom.id,
       });
     }
 
-    const result = await prisma.$transaction(async (tx) => {
-      const approach = await tx.approach.create({
-        data: {
-          tenantId: req.user.id,
-          ownerId: listing.ownerId,
-          listingId,
-        },
+    try {
+      const result = await prisma.$transaction(async (tx) => {
+        const updatedSub = await tx.subscription.updateMany({
+          where: {
+            id: activeSub.id,
+            isActive: true,
+            endDate: { gte: new Date() },
+            OR: [
+              { approachesAllowed: -1 },
+              { approachesUsed: { lt: activeSub.approachesAllowed } },
+            ],
+          },
+          data: {
+            approachesUsed: { increment: 1 },
+          },
+        });
+
+        if (updatedSub.count === 0) {
+          throw new Error("LIMIT_REACHED");
+        }
+
+        await tx.approach.create({
+          data: {
+            tenantId: req.user.id,
+            ownerId: listing.ownerId,
+            listingId,
+          },
+        });
+
+        const room = await tx.chatRoom.create({
+          data: {
+            tenantId: req.user.id,
+            ownerId: listing.ownerId,
+            listingId,
+          },
+        });
+
+        await tx.chatMessage.create({
+          data: {
+            roomId: room.id,
+            senderId: req.user.id,
+            content: String(firstMessage).trim(),
+          },
+        });
+
+        return room;
       });
 
-      const room = await tx.chatRoom.create({
-        data: {
-          tenantId: req.user.id,
-          ownerId: listing.ownerId,
-          listingId,
-        },
+      res.json({
+        message: "Connection established successfully!",
+        roomId: result.id,
       });
-
-      await tx.chatMessage.create({
-        data: {
-          roomId: room.id,
-          senderId: req.user.id,
-          content: String(firstMessage).trim(),
-        },
-      });
-
-      return room;
-    });
-
-    res.json({
-      message: "Connection established successfully!",
-      roomId: result.id,
-    });
+    } catch (err) {
+      if (err.message === "LIMIT_REACHED") {
+        return res.status(403).json({
+          error: "Subscription approaches limit reached. Upgrade required.",
+        });
+      }
+      throw err;
+    }
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

@@ -46,51 +46,69 @@ exports.submitVerification = async (req, res) => {
         ? [documentTypes.trim()]
         : [];
 
+    if (normalizedDocumentUrls.length !== normalizedDocumentTypes.length) {
+      return res.status(400).json({
+        error: "Number of document URLs must match number of document types",
+      });
+    }
     if (normalizedDocumentUrls.length === 0) {
       return res
         .status(400)
         .json({ error: "At least one document must be provided" });
     }
 
-    await prisma.user.update({
-      where: { id: req.user.id },
-      data: {
-        verificationStatus: "PENDING_VERIFICATION",
-        currentCountry: currentCountry ? String(currentCountry) : null,
-        currentStatus: currentStatus ? String(currentStatus) : null,
-        visaStatus: visaStatus ? String(visaStatus) : null,
-        visaType: visaType ? String(visaType) : null,
-        plannedMoveDate: plannedMoveDate ? new Date(plannedMoveDate) : null,
-        purposeOfRelocation: purposeOfRelocation
-          ? String(purposeOfRelocation)
-          : null,
-        expectedRentalDuration: expectedRentalDuration
-          ? String(expectedRentalDuration)
-          : null,
-        residencyStatus: residencyStatus ? String(residencyStatus) : null,
-      },
-    });
+    if (!residencyStatus) {
+      return res
+        .status(400)
+        .json({ error: "Residency status is required for verification" });
+    }
 
-    await prisma.verificationRequest.upsert({
-      where: { userId: req.user.id },
-      update: {
-        residencyStatus: residencyStatus || req.user.role,
-        documentUrls: normalizedDocumentUrls,
-        documentTypes: normalizedDocumentTypes,
-        declarationsAccepted: true,
-        adminNotes: null,
-      },
-      create: {
-        userId: req.user.id,
-        residencyStatus: residencyStatus || req.user.role,
-        documentUrls: normalizedDocumentUrls,
-        documentTypes: normalizedDocumentTypes,
-        declarationsAccepted: true,
-      },
-    });
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: req.user.id },
+        data: {
+          verificationStatus: "PENDING_VERIFICATION",
+          currentCountry: currentCountry ? String(currentCountry) : null,
+          currentStatus: currentStatus ? String(currentStatus) : null,
+          visaStatus: visaStatus ? String(visaStatus) : null,
+          visaType: visaType ? String(visaType) : null,
+          plannedMoveDate: plannedMoveDate
+            ? (() => {
+                const date = new Date(plannedMoveDate);
+                return isNaN(date.getTime()) ? null : date;
+              })()
+            : null,
+          purposeOfRelocation: purposeOfRelocation
+            ? String(purposeOfRelocation)
+            : null,
+          expectedRentalDuration: expectedRentalDuration
+            ? String(expectedRentalDuration)
+            : null,
+          residencyStatus: String(residencyStatus),
+        },
+      }),
+      prisma.verificationRequest.upsert({
+        where: { userId: req.user.id },
+        update: {
+          residencyStatus: String(residencyStatus),
+          documentUrls: normalizedDocumentUrls,
+          documentTypes: normalizedDocumentTypes,
+          declarationsAccepted: true,
+          adminNotes: null,
+        },
+        create: {
+          userId: req.user.id,
+          residencyStatus: String(residencyStatus),
+          documentUrls: normalizedDocumentUrls,
+          documentTypes: normalizedDocumentTypes,
+          declarationsAccepted: true,
+        },
+      }),
+    ]);
 
     res.json({ message: "Verification request submitted successfully" });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Verification submission error:", err);
+    res.status(500).json({ error: "Failed to submit verification request" });
   }
 };

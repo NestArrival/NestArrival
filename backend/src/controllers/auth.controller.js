@@ -1,6 +1,7 @@
 const { prisma } = require("../config/db");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
 const { OAuth2Client } = require("google-auth-library");
 const { sendVerificationOtp } = require("../services/mail.service");
 
@@ -34,27 +35,34 @@ function setCookie(res, token) {
   });
 }
 
+function validatePassword(password) {
+  if (password.length < 8) {
+    return "Password must be at least 8 characters";
+  }
+  if (!/[A-Z]/.test(password)) {
+    return "Password must contain at least one uppercase letter";
+  }
+  if (!/[a-z]/.test(password)) {
+    return "Password must contain at least one lowercase letter";
+  }
+  if (!/[0-9]/.test(password)) {
+    return "Password must contain at least one number";
+  }
+  return null;
+}
+
 exports.signup = async (req, res) => {
   try {
     const { email, password, fullName, role } = req.body;
-    if (!email || !password || !fullName || !role) {
-      return res.status(400).json({ error: "All fields are required" });
-    }
 
-    if (!isValidRole(role)) {
-      return res.status(400).json({ error: "Invalid role selection" });
-    }
-
-    const existing = await prisma.user.findUnique({
-      where: { email: email.toLowerCase() },
-    });
-    if (existing) {
-      return res.status(400).json({ error: "Email already registered" });
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      return res.status(400).json({ error: passwordError });
     }
 
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otp = crypto.randomInt(100000, 1000000).toString();
     const otpExpiry = new Date(Date.now() + 15 * 60 * 1000);
 
     const user = await prisma.user.create({
@@ -77,7 +85,8 @@ exports.signup = async (req, res) => {
       email: user.email,
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Signup error:", err);
+    res.status(500).json({ error: "An error occurred during signup" });
   }
 };
 
@@ -107,7 +116,7 @@ exports.login = async (req, res) => {
     }
 
     if (!user.isVerified) {
-      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      const otp = crypto.randomInt(100000, 1000000).toString();
       const otpExpiry = new Date(Date.now() + 15 * 60 * 1000);
 
       await prisma.user.update({
@@ -140,7 +149,8 @@ exports.login = async (req, res) => {
       },
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Login error:", err);
+    res.status(500).json({ error: "An error occurred during login" });
   }
 };
 
@@ -211,7 +221,8 @@ exports.googleLogin = async (req, res) => {
       },
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Google login error:", err);
+    res.status(500).json({ error: "An error occurred during Google login" });
   }
 };
 
@@ -233,7 +244,19 @@ exports.verifyOtp = async (req, res) => {
       return res.status(403).json({ error: "Account is banned" });
     }
 
-    if (user.otp !== otp || new Date() > new Date(user.otpExpiry)) {
+    let otpMatch = false;
+    if (user.otp && otp) {
+      try {
+        otpMatch = crypto.timingSafeEqual(
+          Buffer.from(user.otp),
+          Buffer.from(otp),
+        );
+      } catch (err) {
+        otpMatch = false;
+      }
+    }
+
+    if (!otpMatch || new Date() > new Date(user.otpExpiry)) {
       return res.status(400).json({ error: "Invalid or expired OTP code" });
     }
 
@@ -262,7 +285,8 @@ exports.verifyOtp = async (req, res) => {
       },
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("OTP verification error:", err);
+    res.status(500).json({ error: "An error occurred during verification" });
   }
 };
 
