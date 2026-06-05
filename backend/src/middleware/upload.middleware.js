@@ -19,7 +19,11 @@ const storage = multer.diskStorage({
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    const safeOriginal = path.basename(file.originalname).replace(/[^a-zA-Z0-9.-]/g, "_");
+    const ext = path.extname(file.originalname);
+    const base = path
+      .basename(file.originalname, ext)
+      .replace(/[^a-zA-Z0-9_-]/g, "_");
+    const safeOriginal = base + ext;
     const uniqueName = `${req.user ? req.user.id : "anon"}_${Date.now()}_${crypto.randomBytes(8).toString("hex")}_${safeOriginal}`;
     cb(null, uniqueName);
   },
@@ -35,7 +39,8 @@ const upload = multer({
 
     const mimeAllowed = Object.keys(allowedMimeTypes);
     const extension = path.extname(file.originalname).toLowerCase();
-    const extensionAllowed = Object.values(allowedMimeTypes).includes(extension);
+    const extensionAllowed =
+      Object.values(allowedMimeTypes).includes(extension);
 
     cb(null, mimeAllowed.includes(file.mimetype) && extensionAllowed);
   },

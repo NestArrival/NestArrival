@@ -34,6 +34,7 @@ const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 process.on("SIGINT", async () => {
+  await prisma.$disconnect();
   await pool.end();
   process.exit(0);
 });

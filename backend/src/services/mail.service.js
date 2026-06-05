@@ -41,6 +41,7 @@ exports.sendVerificationOtp = async (email, otp) => {
         subject: `[NestArrival] Verify Your Email - OTP: ${otp}`,
         html: htmlContent,
       });
+      console.log(`[NestArrival SMTP] Email sent successfully to ${email}`);
       return true;
     } catch (err) {
       console.error("[NestArrival SMTP] Error sending mail via SMTP:", err);
