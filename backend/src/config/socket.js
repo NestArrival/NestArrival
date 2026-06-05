@@ -26,12 +26,3 @@ function getIO() {
 }
 
 module.exports = { initSocket, getIO };
-function initSocket(server) {
-  io = new Server(server, {
-    cors: { origin: allowedOrigins, credentials: true },
-  });
-
-  initChatSocket(io);
-}
-
-module.exports = { initSocket };
