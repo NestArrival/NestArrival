@@ -32,26 +32,38 @@ exports.createSubscription = async (req, res) => {
       Date.now() + plan.durationDays * 24 * 60 * 60 * 1000,
     );
 
-    // TODO: Integrate payment gateway here before transaction
-    // 1. Call payment API (Stripe, PayPal, etc.)
-    // 2. Validate payment status
-    // 3. Handle payment failures gracefully
-    // Only proceed if payment is confirmed
-    // const paymentResult = await processPayment({
+    // CRITICAL: Payment processing must be implemented before subscription creation
+    // Currently, subscriptions are created WITHOUT charging users, creating revenue leakage.
+    // Required implementation:
+    // 1. Integrate payment gateway (Stripe, PayPal, etc.)
+    // 2. Process payment BEFORE this transaction
+    // 3. Store paymentId/paymentStatus with subscription
+    // 4. Handle payment failures and retry logic
+    // DO NOT remove this requirement or deployments will leak revenue.
+    //
+    // Example integration pattern:
+    // const paymentResult = await paymentGateway.charge({
     //   userId: req.user.id,
     //   amount: finalPrice,
+    //   currency: "USD",
     //   planId: plan.id,
+    //   idempotencyKey: `${req.user.id}-${plan.id}-${Date.now()}`,
     // });
     // if (!paymentResult.success) {
-    //   return res.status(402).json({ error: "Payment failed" });
+    //   return res.status(402).json({
+    //     error: "Payment declined",
+    //     details: paymentResult.error
+    //   });
     // }
+    throw new Error(
+      "PAYMENT_NOT_IMPLEMENTED - Subscription creation blocked until payment gateway is integrated",
+    );
 
     await prisma.$transaction(async (tx) => {
-      // Prevent duplicate submissions within last 10 seconds
+      // Prevent duplicate submissions within last 10 seconds (any plan)
       const recentSub = await tx.subscription.findFirst({
         where: {
           userId: req.user.id,
-          planId: plan.id,
           createdAt: { gte: new Date(Date.now() - 10000) },
         },
       });
@@ -89,10 +101,16 @@ exports.createSubscription = async (req, res) => {
 
     res.json({ message: `Successfully purchased ${plan.name}!` });
   } catch (err) {
+    if (err.message.includes("PAYMENT_NOT_IMPLEMENTED")) {
+      return res.status(501).json({
+        error:
+          "Payment processing is not yet configured. Please contact support.",
+      });
+    }
     if (err.message === "DUPLICATE_REQUEST") {
       return res.status(409).json({
         error:
-          "Subscription request already submitted. Please wait and try again.",
+          "A subscription request is already pending. Please wait before submitting another.",
       });
     }
     console.error("Subscription creation failed:", err);

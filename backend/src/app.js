@@ -33,12 +33,6 @@ if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-  message: "Too many requests, try again later.",
-});
-
 const app = express();
 if (process.env.NODE_ENV === "production") {
   app.set("trust proxy", 1);
