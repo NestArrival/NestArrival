@@ -1,4 +1,5 @@
 function validateRequiredEnv() {
+  // Fail fast when the app cannot safely start without these values.
   const required = ["DATABASE_URL", "JWT_SECRET"];
   const missing = required.filter((key) => !process.env[key]);
 
@@ -7,6 +8,7 @@ function validateRequiredEnv() {
     process.exit(1);
   }
 
+  // SMTP is warned, not fatal, so non-email routes can still boot in production.
   if (process.env.NODE_ENV === "production") {
     const missingSmtp = ["SMTP_HOST", "SMTP_USER", "SMTP_PASS"].filter(
       (key) => !process.env[key],

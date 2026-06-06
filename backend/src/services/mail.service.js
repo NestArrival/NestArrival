@@ -18,6 +18,7 @@ function requireSmtpConfig() {
     throw new Error("Invalid SMTP_PORT configuration");
   }
 
+  // Port 465 uses implicit TLS. Other ports can still upgrade with STARTTLS.
   return {
     configured: true,
     host,
@@ -32,6 +33,7 @@ function requireSmtpConfig() {
 }
 
 function buildOtpEmail(otp) {
+  // Table-based markup is more reliable across Gmail, Outlook, and mobile apps.
   const html = `
     <!doctype html>
     <html lang="en">
@@ -115,6 +117,7 @@ exports.sendVerificationOtp = async (email, otp) => {
       throw new Error("SMTP credentials are not configured");
     }
 
+    // Local-only escape hatch so developers can test signup without SMTP.
     if (process.env.ALLOW_CONSOLE_OTP === "true") {
       console.log(`\n==================================================`);
       console.log(`[NestArrival OTP Development Fallback]`);
@@ -153,4 +156,3 @@ exports.sendVerificationOtp = async (email, otp) => {
   console.log(`[NestArrival SMTP] Verification email sent to ${email}`);
   return true;
 };
-

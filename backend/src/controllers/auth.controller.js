@@ -69,6 +69,7 @@ exports.signup = async (req, res) => {
         fullName,
         role: normalizeRole(role),
 
+        // Store only the hashed OTP so leaked database rows do not expose codes.
         otp: otpHash,
         otpExpiry,
         otpAttempts: 0,
@@ -285,6 +286,7 @@ exports.verifyOtp = async (req, res) => {
       return res.status(400).json({ error: "Invalid OTP" });
     }
 
+    // Constant-time comparison avoids leaking partial OTP match information.
     const isValid = crypto.timingSafeEqual(stored, input);
 
     if (!isValid) {
@@ -371,7 +373,10 @@ exports.resendOtp = async (req, res) => {
       });
     }
 
-    return res.json({ message: "OTP resent successfully", email: normalizedEmail });
+    return res.json({
+      message: "OTP resent successfully",
+      email: normalizedEmail,
+    });
   } catch (err) {
     if (isZodError(err)) {
       return sendValidationError(res, err);

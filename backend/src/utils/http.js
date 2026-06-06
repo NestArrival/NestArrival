@@ -1,6 +1,7 @@
 const { ZodError } = require("zod");
 
 function formatZodIssues(error) {
+  // Zod v4 uses issues; keep errors as a fallback for older call sites.
   const issues = Array.isArray(error?.issues)
     ? error.issues
     : Array.isArray(error?.errors)
