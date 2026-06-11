@@ -54,6 +54,11 @@ export default function AdminDashboardView() {
   }, []);
 
   useEffect(() => {
+    if (!currentUser) return;
+    loadTabData();
+  }, [activeTab, currentUser]);
+
+  useEffect(() => {
     if (selectedUser) {
       document.body.style.overflow = 'hidden';
     } else {
@@ -115,41 +120,55 @@ export default function AdminDashboardView() {
   };
 
   const fetchVerifications = async () => {
-    setLoadingVerifications(true);
-    try {
-      const { data } = await adminApi.verifications();
-      setVerifications(data);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoadingVerifications(false);
-    }
-  };
+  setLoadingVerifications(true);
+  try {
+    const { data } = await adminApi.verifications();
+    const verData = Array.isArray(data) ? data : (Array.isArray(data?.verifications) ? data.verifications : []);
+    setVerifications(verData);
+  } catch (e) {
+    console.error(e);
+    setVerifications([]); 
+  } finally {
+    setLoadingVerifications(false);
+  }
+};
+
+const fetchRefunds = async () => {
+  setLoadingRefunds(true);
+  try {
+    const { data } = await adminApi.refundList();
+    const refundData = Array.isArray(data) ? data : (Array.isArray(data?.refundRequests) ? data.refundRequests : []);
+    setRefunds(refundData);
+  } catch (e) {
+    console.error(e);
+    setRefunds([]); 
+  } finally {
+    setLoadingRefunds(false);
+  }
+};
 
   const fetchListingsQueue = async () => {
-    setLoadingListingsQueue(true);
-    try {
-      const { data } = await listingsApi.all();
-      setListingsQueue(data);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoadingListingsQueue(false);
+  setLoadingListingsQueue(true);
+  try {
+    const { data } = await listingsApi.all();
+    let listingsData = [];
+    if (Array.isArray(data)) {
+      listingsData = data;
+    } else if (Array.isArray(data?.listings)) {
+      listingsData = data.listings;
+    } else if (Array.isArray(data?.items)) {
+      listingsData = data.items;
     }
-  };
+    setListingsQueue(listingsData);
+  } catch (e) {
+    console.error(e);
+    setListingsQueue([]); 
+  } finally {
+    setLoadingListingsQueue(false);
+  }
+};
 
-  const fetchRefunds = async () => {
-    setLoadingRefunds(true);
-    try {
-      const { data } = await adminApi.refundList();
-      setRefunds(data);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoadingRefunds(false);
-    }
-  };
-
+ 
   const fetchCmsPages = async () => {
     setLoadingCms(true);
     try {
@@ -328,6 +347,10 @@ export default function AdminDashboardView() {
       { name: "Owners", count: analytics.totalOwners || 0, color: "#475569" },
     ];
   };
+
+  const verificationRows = Array.isArray(verifications) ? verifications : [];
+const refundRows = Array.isArray(refunds) ? refunds : [];
+const listingRows = Array.isArray(listingsQueue) ? listingsQueue : [];
 
   return (
     <div className="light-theme-dashboard flex min-h-screen bg-content-dark text-[#f5f5f7]">
@@ -618,7 +641,7 @@ export default function AdminDashboardView() {
                       </div>
 
                       {/* Recharts Graphs Visualizations Section */}
-                      {mounted && (
+                      {mounted && activeTab === "analytics" && (
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
                           {/* Area Chart: Revenue Trend */}
                           <div className="bg-card-dark p-6 rounded-xl border border-contrast-dark shadow-xl">
@@ -633,8 +656,8 @@ export default function AdminDashboardView() {
                               <span className="text-[10px] font-bold text-[#d4ff4d] font-mono">TOTAL: CAD ${analytics.totalRevenue}</span>
                             </div>
 
-                            <div className="h-[250px] w-full text-[10px]">
-                              <ResponsiveContainer width="100%" height="100%">
+                            <div className="h-[250px] w-full min-w-0 text-[10px]">
+                              <ResponsiveContainer width="100%" height={250} minWidth={0}>
                                 <AreaChart data={getRevenueData()} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                   <defs>
                                     <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
@@ -670,8 +693,8 @@ export default function AdminDashboardView() {
                               <span className="text-[10px] font-bold text-white font-mono">TOTAL: {analytics.totalTenants + analytics.totalOwners}</span>
                             </div>
 
-                            <div className="h-[250px] w-full text-[10px]">
-                              <ResponsiveContainer width="100%" height="100%">
+                            <div className="h-[250px] w-full min-w-0 text-[10px]">
+                              <ResponsiveContainer width="100%" height={250} minWidth={0}>
                                 <BarChart data={getRegistrationsData()} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
                                   <CartesianGrid strokeDasharray="3 3" stroke="#1d1d22" />
                                   <XAxis dataKey="name" stroke="#52525b" />
@@ -724,13 +747,13 @@ export default function AdminDashboardView() {
                     <div className="flex justify-center py-12">
                       <Loader2 className="h-8 w-8 animate-spin text-[#d4ff4d]" />
                     </div>
-                  ) : verifications.filter(req => verificationsShowHistory ? (req.user.verificationStatus === "VERIFIED" || req.user.verificationStatus === "REJECTED") : req.user.verificationStatus === "PENDING_VERIFICATION").length === 0 ? (
+                  ) : verificationRows.filter(req => verificationsShowHistory ? (req.user.verificationStatus === "VERIFIED" || req.user.verificationStatus === "REJECTED") : req.user.verificationStatus === "PENDING_VERIFICATION").length === 0 ? (
                     <div className="text-center py-16 bg-card-dark border border-contrast-dark rounded-xl italic text-zinc-500">
                       No matching verification applications found in queue.
                     </div>
                   ) : (
                     <div className="space-y-6">
-                      {verifications
+                      {verificationRows
                         .filter(req => verificationsShowHistory ? (req.user.verificationStatus === "VERIFIED" || req.user.verificationStatus === "REJECTED") : req.user.verificationStatus === "PENDING_VERIFICATION")
                         .map((req) => (
                           <div key={req.id} className="bg-card-dark p-6 rounded-xl border border-contrast-dark shadow-xl space-y-4">
@@ -848,13 +871,13 @@ export default function AdminDashboardView() {
                     <div className="flex justify-center py-12">
                       <Loader2 className="h-8 w-8 animate-spin text-[#d4ff4d]" />
                     </div>
-                  ) : listingsQueue.filter(item => listingsShowHistory ? (item.status === "APPROVED" || item.status === "REJECTED") : item.status === "PENDING_REVIEW").length === 0 ? (
+                  ) : listingRows.filter(item => listingsShowHistory ? (item.status === "APPROVED" || item.status === "REJECTED") : item.status === "PENDING_REVIEW").length === 0 ? (
                     <div className="text-center py-16 bg-card-dark border border-contrast-dark rounded-xl italic text-zinc-500">
                       No matching property listings found.
                     </div>
                   ) : (
                     <div className="space-y-6">
-                      {listingsQueue
+                      {listingRows
                         .filter(item => listingsShowHistory ? (item.status === "APPROVED" || item.status === "REJECTED") : item.status === "PENDING_REVIEW")
                         .map((item) => (
                           <div key={item.id} className="bg-card-dark p-6 rounded-xl border border-contrast-dark shadow-xl space-y-4">
@@ -930,13 +953,13 @@ export default function AdminDashboardView() {
                     <div className="flex justify-center py-12">
                       <Loader2 className="h-8 w-8 animate-spin text-[#d4ff4d]" />
                     </div>
-                  ) : refunds.length === 0 ? (
+                  ) : refundRows.length === 0 ? (
                     <div className="text-center py-16 bg-card-dark border border-contrast-dark rounded-xl italic text-zinc-500">
                       No active refund claims in queue.
                     </div>
                   ) : (
                     <div className="space-y-6">
-                      {refunds.map((req) => (
+                      {refundRows.map((req) => (
                         <div key={req.id} className="bg-card-dark p-6 rounded-xl border border-contrast-dark shadow-xl space-y-4">
                           <div className="flex items-center justify-between border-b border-contrast-dark pb-3">
                             <div>

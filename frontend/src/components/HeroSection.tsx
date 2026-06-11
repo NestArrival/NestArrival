@@ -70,8 +70,7 @@ export default function HeroSection({ user: propUser, loading: propLoading }: He
 
   return (
     <>
-      <section ref={heroRef} className="relative pt-8 pb-8 md:pb-32 px-0 sm:px-6 lg:px-8 z-10"
->
+      <section ref={heroRef} className="relative pt-8 pb-8 md:pb-56 lg:pb-64 px-0 sm:px-6 lg:px-8 z-10">
 
         <div className="absolute inset-0 overflow-hidden z-0 bg-[#fdfbf7]">
           <video
@@ -91,7 +90,7 @@ export default function HeroSection({ user: propUser, loading: propLoading }: He
 
         <div className="absolute top-0 right-0 w-2/3 h-full bg-gradient-to-l from-[#eae1d3]/20 to-transparent pointer-events-none rounded-bl-full opacity-50 z-0" />
 
-<div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between relative z-10 gap-4 lg:gap-12 pb-4 md:pb-0 overflow-visible px-4 sm:px-0">
+        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between relative z-10 gap-4 lg:gap-12 pb-4 md:pb-0 overflow-visible px-4 sm:px-0">
 
           <div className="lg:w-1/2 space-y-6 relative z-20 text-center lg:text-left mt-2">
             <h1 ref={headingRef} className="font-serif text-5xl sm:text-6xl lg:text-7xl font-bold text-[#2c2724] tracking-tight leading-[1.1] opacity-0">
@@ -113,7 +112,7 @@ export default function HeroSection({ user: propUser, loading: propLoading }: He
             </motion.div>
           </div>
 
-<div ref={heroImageRef} className="lg:w-1/2 relative opacity-0 w-full max-w-2xl mx-auto mb-6 lg:mb-0">
+          <div ref={heroImageRef} className="lg:w-1/2 relative opacity-0 w-full max-w-2xl mx-auto mb-6 lg:mb-0">
             <motion.div style={{ y, rotateX }} className="relative z-10">
               <div className="absolute inset-0 bg-[#cfa052]/10 rounded-[3rem] transform translate-x-4 translate-y-4" />
               <img
@@ -165,7 +164,7 @@ export default function HeroSection({ user: propUser, loading: propLoading }: He
           </div>
         ) : (
           <div ref={searchBarRef} className="opacity-0 mt-8 md:mt-0 md:absolute md:left-1/2 md:-translate-x-1/2 md:-bottom-12 w-full md:w-[90%] md:max-w-5xl md:z-30 mx-auto">
-            <div className="relative z-30 bg-white rounded-none sm:rounded-3xl shadow-[0_20px_50px_rgba(44,39,36,0.08)] border-y sm:border m-7 border-[#eae1d3] p-4 md:p-3">              
+            <div className="relative z-30 bg-white rounded-none sm:rounded-3xl shadow-[0_20px_50px_rgba(44,39,36,0.08)] border-y sm:border m-7 border-[#eae1d3] p-4 md:p-3">
               {user?.role !== "TENANT" && (
                 <div className="flex flex-col sm:flex-row sm:items-center border-b border-[#eae1d3] px-2 sm:px-4 pb-2 gap-3 sm:gap-6">
                   <button onClick={() => setSearchRole("Tenant")} className={`text-xs font-bold pb-2 border-b-2 transition-colors cursor-pointer ${searchRole === "Tenant" ? "border-[#cfa052] text-[#cfa052]" : "border-transparent text-[#8a7d6a] hover:text-[#2c2724]"}`}>Find a Home</button>
@@ -220,6 +219,7 @@ export default function HeroSection({ user: propUser, loading: propLoading }: He
       </section>
 
       <div className="h-6 md:h-24 bg-[#f4efe6]"></div>
+
     </>
   );
 }

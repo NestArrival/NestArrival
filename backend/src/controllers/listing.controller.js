@@ -356,24 +356,36 @@ exports.archiveListing = async (req, res) => {
 
 exports.getSavedListings = async (req, res) => {
   try {
+    const userId = req.user.id;
+    
     const list = await prisma.savedListing.findMany({
-      where: { userId: req.user.id },
+      where: {
+        userId: userId
+      },
       include: {
         listing: {
-          where: { status: "APPROVED" },
           include: {
-            owner: { select: { id: true, fullName: true, isVerified: true } },
-          },
-        },
-      },
+            owner: {
+              select: {
+                id: true,
+                fullName: true,
+                isVerified: true
+              }
+            }
+          }
+        }
+      }
     });
-    res.json(list.filter((item) => item.listing).map((item) => item.listing));
-  } catch (err) {
-    return sendServerError(
-      res,
-      "Saved listings fetch error: " + err.message,
-      "Failed to fetch saved listings",
-    );
+
+   
+    const approvedListings = list
+      .filter(item => item.listing && item.listing.status === "APPROVED")
+      .map(item => item.listing);
+
+    res.json(approvedListings);
+  } catch (error) {
+    console.error("Saved listings fetch error:", error);
+    res.status(500).json({ error: "Failed to fetch saved listings" });
   }
 };
 

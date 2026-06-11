@@ -126,37 +126,48 @@ export default function DashboardView() {
   };
 
   const fetchListings = async () => {
-    setLoadingListings(true);
-    try {
-      const { data } = await listingsApi.mine();
-      setListings(data);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoadingListings(false);
-    }
-  };
+  setLoadingListings(true);
+  try {
+    const { data } = await listingsApi.mine();
+    const listingsData = Array.isArray(data) ? data : (Array.isArray(data?.listings) ? data.listings : []);
+    setListings(listingsData);
+  } catch (e) {
+    console.error(e);
+    setListings([]); 
+  } finally {
+    setLoadingListings(false);
+  }
+};
 
-  const fetchChatRooms = async () => {
-    try {
-      const { data } = await chatApi.listRooms();
-      setChatRooms(data);
-    } catch (e) {
-      console.error(e);
+ const fetchChatRooms = async () => {
+  try {
+    const { data } = await chatApi.listRooms();
+    let roomsData = [];
+    if (Array.isArray(data)) {
+      roomsData = data;
+    } else if (Array.isArray(data?.rooms)) {
+      roomsData = data.rooms;
     }
-  };
+    setChatRooms(roomsData);
+  } catch (e) {
+    console.error(e);
+    setChatRooms([]);
+  }
+};
 
   const fetchMessages = async (roomId: string) => {
-    setLoadingMessages(true);
-    try {
-      const { data } = await chatApi.listMessages(roomId);
-      setMessages(data);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoadingMessages(false);
-    }
-  };
+  setLoadingMessages(true);
+  try {
+    const { data } = await chatApi.listMessages(roomId);
+    const messagesData = Array.isArray(data) ? data : (Array.isArray(data?.messages) ? data.messages : []);
+    setMessages(messagesData);
+  } catch (e) {
+    console.error(e);
+    setMessages([]); 
+  } finally {
+    setLoadingMessages(false);
+  }
+};
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -382,11 +393,11 @@ export default function DashboardView() {
                 <MessageSquare className="h-4 w-4" />
                 <span>Tenant Inquiries</span>
               </div>
-              {chatRooms.length > 0 && (
-                <span className="bg-[#d4ff4d] text-black rounded-full px-1.5 py-0.5 text-[9px] font-extrabold">
-                  {chatRooms.length}
-                </span>
-              )}
+              {Array.isArray(chatRooms) && chatRooms.length > 0 && (
+  <span className="bg-[#d4ff4d] text-black rounded-full px-1.5 py-0.5 text-[9px] font-extrabold">
+    {chatRooms.length}
+  </span>
+)}
             </button>
 
             <button
@@ -656,9 +667,9 @@ export default function DashboardView() {
                       Incoming Tenant Matches
                     </div>
                     <div className="flex-grow divide-y divide-zinc-950">
-                      {chatRooms.length === 0 ? (
-                        <p className="p-6 text-center text-zinc-500 italic">No inquiry messages received.</p>
-                      ) : (
+                      {!Array.isArray(chatRooms) || chatRooms.length === 0 ? (
+  <p className="p-6 text-center text-zinc-500 italic">No inquiry messages received.</p>
+) : (
                         chatRooms.map((room) => (
                           <button
                             key={room.id}
