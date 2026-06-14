@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, User } from "lucide-react";
 
 
 
@@ -55,13 +55,9 @@ export default function FoundersMessageSection() {
           <div className="mt-10 border-t border-[#eadcc6] pt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-4">
               <div className="h-16 w-16 overflow-hidden rounded-full bg-[#eadfce] border border-[#eadcc6] shadow-sm shrink-0">
-                <Image
-                  src="/images/canada_relocation_3d.png"
-                  alt="Royal Singh portrait"
-                  width={64}
-                  height={64}
-                  className="h-full w-full object-cover"
-                />
+                <div className="h-16 w-16 overflow-hidden rounded-full border">
+  <User className="h-full w-full p-2 text-gray-500" />
+</div>
               </div>
               <div>
                 <p className="font-bold text-[#2c2724] text-lg leading-none">Royal Singh</p>

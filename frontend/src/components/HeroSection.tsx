@@ -21,6 +21,7 @@ export default function HeroSection({ user: propUser, loading: propLoading }: He
   const [searchDate, setSearchDate] = useState("");
   const [searchType, setSearchType] = useState("");
 
+  const videoRef = useRef<HTMLVideoElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const subheadingRef = useRef<HTMLParagraphElement>(null);
@@ -37,18 +38,16 @@ export default function HeroSection({ user: propUser, loading: propLoading }: He
   }, [propUser, propLoading]);
 
   useEffect(() => {
-    if (user?.role === "TENANT") {
-      setSearchRole("Tenant");
-    }
+    if (user?.role === "TENANT") setSearchRole("Tenant");
   }, [user]);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ defaults: { ease: "power3.out", duration: 1 } });
-      if (headingRef.current) tl.fromTo(headingRef.current, { opacity: 0, y: 40 }, { opacity: 1, y: 0, delay: 0.1 });
-      if (subheadingRef.current) tl.fromTo(subheadingRef.current, { opacity: 0, y: 25 }, { opacity: 1, y: 0 }, "-=0.7");
-      if (heroImageRef.current) tl.fromTo(heroImageRef.current, { opacity: 0, x: 40, scale: 0.95 }, { opacity: 1, x: 0, scale: 1, duration: 1.2 }, "-=0.7");
-      if (searchBarRef.current) tl.fromTo(searchBarRef.current, { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 0.8 }, "-=0.5");
+      if (headingRef.current)    tl.fromTo(headingRef.current,    { opacity: 0, y: 40 },                { opacity: 1, y: 0, delay: 0.1 });
+      if (subheadingRef.current) tl.fromTo(subheadingRef.current, { opacity: 0, y: 25 },                { opacity: 1, y: 0 }, "-=0.7");
+      if (heroImageRef.current)  tl.fromTo(heroImageRef.current,  { opacity: 0, x: 40, scale: 0.95 },   { opacity: 1, x: 0, scale: 1, duration: 1.2 }, "-=0.7");
+      if (searchBarRef.current)  tl.fromTo(searchBarRef.current,  { opacity: 0, y: 50 },                { opacity: 1, y: 0, duration: 0.8 }, "-=0.5");
     }, heroRef);
     return () => ctx.revert();
   }, [loading, user]);
@@ -62,15 +61,17 @@ export default function HeroSection({ user: propUser, loading: propLoading }: He
         {/* Background video */}
         <div className="absolute inset-0 overflow-hidden z-0 bg-[#fdfbf7]">
           <video
+            ref={videoRef}
             autoPlay
             loop
             muted
             playsInline
-            className="absolute inset-0 w-full h-full object-cover opacity-50 pointer-events-none"
+            preload="auto"
+            className="absolute inset-0 w-full h-full object-cover pointer-events-none opacity-50 animate-slow-drift"
           >
             <source src="https://videos.pexels.com/video-files/37767355/16019361_1920_1080_60fps.mp4" type="video/mp4" />
-            <source src="https://videos.pexels.com/video-files/2519660/2519660-hd_1920_1080_24fps.mp4" type="video/mp4" />
           </video>
+
           <div className="absolute inset-0 bg-gradient-to-r from-[#fdfbf7] via-[#fdfbf7]/80 to-transparent pointer-events-none w-full lg:w-2/3" />
           <div className="absolute inset-0 bg-gradient-to-b from-[#fdfbf7]/95 via-transparent to-[#fdfbf7]/95 pointer-events-none" />
         </div>

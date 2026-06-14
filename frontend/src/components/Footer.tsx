@@ -7,7 +7,7 @@ export default function Footer() {
   const platformLinks = [
     { name: "Home", href: "/" },
     { name: "About Us", href: "/about" },
-    { name: "How It Works", href: "/#how-it-works" },
+    { name: "How It Works", href: "/how-it-works" },
     { name: "Contact Us", href: "/contact" },
     { name: "Founder's Story", href: "/founders-story" },
     { name: "Partner With Us", href: "/partner-with-us" },
@@ -28,7 +28,7 @@ export default function Footer() {
   const socialLinks = [
     {
       name: "Instagram",
-      href: "#",
+      href: "https://www.instagram.com/_nestarrival_?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==",
       svg: (
         <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
           <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />

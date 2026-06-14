@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Mail, Lock, KeyRound, AlertCircle, ArrowRight, ArrowLeft, Eye, EyeOff, RefreshCw, CheckCircle } from "lucide-react";
 import Logo from "@/components/Logo";
 import { authApi } from "@/apis/Authentication/auth";
 import { motion, AnimatePresence } from "framer-motion";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
+
 
 const passwordRules = [
   { label: "At least 8 characters", test: (p: string) => p.length >= 8 },
@@ -198,10 +200,10 @@ export default function LoginView() {
 
   return (
     <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}>
-      <div className="flex min-h-screen bg-white font-sans overflow-hidden">
+      <div className="flex min-h-[100dvh] flex-col bg-white font-sans overflow-x-hidden lg:flex-row">
         <div className="hidden lg:flex lg:w-3/5 relative bg-[#fdfbf7] items-center justify-center overflow-hidden">
-          <img src="/signup_bg.jpg" alt="Relocation Housing" className="absolute inset-0 w-full h-full object-cover opacity-50" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#fdfbf7] via-[#fdfbf7]/80 to-transparent pointer-events-none" />
+          <Image src="/images/authimg.png" alt="Relocation Housing" fill priority sizes="60vw" className="object-cover opacity-25" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#fdfbf7] via-[#fdfbf7]/2   to-transparent pointer-events-none" />
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#fdfbf7]/60 pointer-events-none" />
           <div className="relative z-10 w-full max-w-2xl px-12 text-[#2c2724]">
             <Link href="/" className="flex items-center space-x-2 group mb-12">
@@ -221,9 +223,20 @@ export default function LoginView() {
           </div>
         </div>
 
-        <div className="w-full lg:w-2/5 flex flex-col justify-center px-8 sm:px-16 xl:px-24 py-12 relative z-20 bg-white shadow-[-20px_0_40px_rgba(44,39,36,0.05)]">
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }} className="w-full max-w-sm mx-auto">
-            <div className="lg:hidden flex items-center justify-center space-x-2 mb-10">
+        <div className="lg:hidden px-5 pt-6">
+          <div className="relative overflow-hidden rounded-[2rem] border border-[#eae1d3] bg-[#fdfbf7] shadow-[0_16px_40px_rgba(44,39,36,0.08)] aspect-[16/11]">
+            <Image src="/images/authimg.png" alt="Relocation Housing" fill sizes="100vw" className="object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#2c2724]/35 via-transparent to-transparent" />
+            <div className="absolute bottom-4 left-4 right-4">
+              <p className="text-[10px] font-black uppercase tracking-[0.35em] text-white/90">Verification First</p>
+              <p className="mt-1 text-sm font-serif font-bold text-white">Find trusted housing before you arrive.</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="w-full lg:w-2/5 flex flex-1 flex-col justify-center px-5 sm:px-8 lg:px-16 xl:px-24 py-8 lg:py-12 relative z-20 bg-white shadow-none lg:shadow-[-20px_0_40px_rgba(44,39,36,0.05)] lg:h-[100dvh] lg:overflow-y-auto">
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }} className="w-full max-w-md mx-auto">
+            <div className="lg:hidden flex items-center justify-center space-x-2 mb-8 mt-2">
               <Logo className="h-10 w-10 text-[#cfa052]" />
               <span className="text-2xl font-black font-serif text-[#2c2724]">
                 Nest<span className="text-[#cfa052]">Arrival</span>
@@ -274,8 +287,8 @@ export default function LoginView() {
             <AnimatePresence mode="wait">
               {step === "LOGIN" && (
                 <motion.div key="login" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
-                  <div className="mb-6 flex justify-center">
-                    <GoogleLogin onSuccess={handleGoogleSuccess} onError={() => setError("Google login failed.")} theme="outline" size="large" width="384" text="continue_with" shape="pill" />
+                  <div className="mb-6 flex w-full justify-center overflow-hidden">
+                    <GoogleLogin onSuccess={handleGoogleSuccess} onError={() => setError("Google login failed.")} theme="outline" size="large" width={300} text="continue_with" shape="pill" />
                   </div>
                   <div className="flex items-center gap-4 mb-6">
                     <div className="h-px bg-[#eae1d3] flex-1"></div>

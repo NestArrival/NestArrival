@@ -2,11 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import {
-  ArrowRight,
-  Search,
-} from "lucide-react";
+import { Search } from "lucide-react";
 import { motion } from "framer-motion";
 import TiltCard from "@/components/TiltCard";
 
@@ -33,7 +29,6 @@ export default function TrendingHomesSection({
   user: propUser,
   loading: propLoading,
 }: TrendingHomesSectionProps) {
-  const router = useRouter();
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
@@ -43,10 +38,6 @@ export default function TrendingHomesSection({
   const floorPlanPreviews = [
     {
       title: "Charming Chelsea Apartment",
-      city: "London",
-      country: "United Kingdom",
-      rent: "2,400",
-      currency: "GBP",
       roomType: "Entire Apartment",
       bedrooms: "2 Bedrooms",
       furnishing: "Fully Furnished",
@@ -58,10 +49,6 @@ export default function TrendingHomesSection({
     },
     {
       title: "Luxury Marina Heights Suite",
-      city: "Dubai",
-      country: "United Arab Emirates",
-      rent: "7,500",
-      currency: "AED",
       roomType: "Studio Apartment",
       bedrooms: "1 Bedroom",
       furnishing: "Furnished",
@@ -73,10 +60,6 @@ export default function TrendingHomesSection({
     },
     {
       title: "Sunny Bondi Beach Condo",
-      city: "Sydney",
-      country: "Australia",
-      rent: "950",
-      currency: "AUD",
       roomType: "Private Room",
       bedrooms: "1 Bedroom",
       furnishing: "Semi-Furnished",
@@ -88,10 +71,6 @@ export default function TrendingHomesSection({
     },
     {
       title: "Loft in Downtown Manhattan",
-      city: "New York",
-      country: "United States",
-      rent: "3,200",
-      currency: "USD",
       roomType: "Entire Loft",
       bedrooms: "1 Bedroom",
       furnishing: "Fully Furnished",
@@ -103,10 +82,6 @@ export default function TrendingHomesSection({
     },
     {
       title: "Modern City-Centre Townhouse",
-      city: "Auckland",
-      country: "New Zealand",
-      rent: "850",
-      currency: "NZD",
       roomType: "Entire Townhouse",
       bedrooms: "3 Bedrooms",
       furnishing: "Furnished",
@@ -117,12 +92,6 @@ export default function TrendingHomesSection({
       image: "/images/vancouver_townhouse.png",
     },
   ];
-
-  const currencySymbol = (currency: string) => {
-    if (currency === "GBP") return "GBP ";
-    if (currency === "AED") return "AED ";
-    return "$";
-  };
 
   return (
     <section className="py-32 px-4 sm:px-6 lg:px-8 bg-[#f4efe6]" aria-busy={!!propLoading}>
@@ -151,17 +120,7 @@ export default function TrendingHomesSection({
             <motion.div key={listing.title} variants={fadeUpItem}>
               <TiltCard
                 tiltMax={3}
-                className="h-full w-full rounded-[2rem] overflow-hidden border border-[#eae1d3] bg-white shadow-[0_12px_30px_rgba(44,39,36,0.03)] flex flex-col group hover:shadow-[0_20px_45px_rgba(44,39,36,0.06)] transition-all duration-300 cursor-pointer"
-                onClick={() => router.push("/tenant/dashboard")}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" || event.key === " ") {
-                    event.preventDefault();
-                    router.push("/tenant/dashboard");
-                  }
-                }}
-                aria-label={`View details for ${listing.title}`}
+                className="h-full w-full rounded-[2rem] overflow-hidden border border-[#eae1d3] bg-white shadow-[0_12px_30px_rgba(44,39,36,0.03)] flex flex-col group transition-all duration-300"
               >
                 <div className="h-48 w-full relative overflow-hidden bg-[#f4efe6]">
                   <img
@@ -176,13 +135,8 @@ export default function TrendingHomesSection({
 
                 <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
                   <div className="space-y-2">
-                    <div className="flex justify-between items-center text-[10px] text-[#8a7d6a] font-bold">
-                      <span>
-                        {listing.roomType} · {listing.bedrooms}
-                      </span>
-                      <span className="text-[#cfa052] font-black">
-                        {listing.city}, {listing.country}
-                      </span>
+                    <div className="text-[10px] text-[#8a7d6a] font-bold">
+                      {listing.roomType} &middot; {listing.bedrooms}
                     </div>
                     <h3 className="font-serif font-black text-lg text-[#2c2724] leading-tight">
                       {listing.title}
@@ -220,25 +174,6 @@ export default function TrendingHomesSection({
                           {tag}
                         </span>
                       ))}
-                    </div>
-
-                    <div className="flex items-center justify-between pt-3 border-t border-[#f4efe6]">
-                      <div>
-                        <span className="text-[9px] text-[#8a7d6a] uppercase tracking-wider block">
-                          Monthly Rent
-                        </span>
-                        <span className="font-black text-base text-[#2c2724]">
-                          {currencySymbol(listing.currency)}
-                          {listing.rent}
-                        </span>
-                      </div>
-                      <Link
-                        href={user ? "/tenant/dashboard" : "/login"}
-                        onClick={(event) => event.stopPropagation()}
-                        className="text-[10px] font-extrabold bg-[#cfa052] hover:bg-[#b58942] text-white px-4 py-2.5 rounded-xl transition-all duration-300 flex items-center gap-1"
-                      >
-                        Inquire <ArrowRight className="h-3 w-3" />
-                      </Link>
                     </div>
                   </div>
                 </div>
