@@ -72,14 +72,14 @@ export default function ProblemSection() {
             <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#2c2724] tracking-tight leading-[1.1]">
               Moving Abroad Shouldn&apos;t Start With Housing Stress.
             </h2>
-            <p className="text-sm text-[#5c544d] leading-relaxed">
+            <p className="text-[1.125rem] text-[#5c544d] leading-relaxed">
               Relocating is emotionally overwhelming. Traditional rental portals ignore international applicants because they lack local references or credit scores, resulting in:
             </p>
             <ul className="space-y-3 text-xs text-[#2c2724] font-medium">
               {painPoints.map((item) => (
                 <li key={item} className="flex items-start gap-2.5">
                   <span className="text-red-500/80 font-bold flex-shrink-0 mt-0.5">✕</span>
-                  <span>{item}</span>
+                  <span className="text-[1.1rem]">{item}</span>
                 </li>
               ))}
             </ul>
@@ -97,7 +97,7 @@ export default function ProblemSection() {
               </div>
               <h3 className="font-extrabold text-sm text-[#2c2724]">Why Traditional Sites Ignore You</h3>
             </div>
-            <p className="text-[11px] text-[#5c544d] leading-relaxed">
+            <p className="text-[1rem] text-[#5c544d] leading-relaxed">
               Traditional rental platforms mainly focus on local renters. They fail to understand: no local references, no local income history, different documentation systems, visa-related uncertainty, cross-border communication barriers.
             </p>
             <div className="border-t border-[#eae1d3] pt-6 grid grid-cols-3 gap-4 text-center items-start">

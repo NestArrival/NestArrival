@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Mail, Lock, User, AlertCircle, ArrowRight, ArrowLeft, Eye, EyeOff, KeyRound, RefreshCw, CheckCircle } from "lucide-react";
 import Logo from "@/components/Logo";
@@ -22,6 +23,21 @@ const passwordRules = [
 
 export default function SignupView() {
   const router = useRouter();
+
+  useEffect(() => {
+    const cached = localStorage.getItem("nestarrival_user");
+    if (cached) {
+      try {
+        const user = JSON.parse(cached);
+        if (user.role === "ADMIN") router.push("/admin/dashboard");
+        else if (user.role === "OWNER") router.push("/owner/dashboard");
+        else if (user.role === "TENANT") router.push("/tenant/dashboard");
+      } catch (err) {
+        console.error("Failed to parse cached user in SignupView", err);
+      }
+    }
+  }, [router]);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -112,6 +128,7 @@ export default function SignupView() {
         return;
       }
       const userRole = data.user.role;
+      localStorage.setItem("nestarrival_user", JSON.stringify(data.user));
       if (userRole === "ADMIN") router.push("/admin/dashboard");
       else if (userRole === "OWNER") router.push("/owner/dashboard");
       else router.push("/tenant/dashboard");
@@ -133,6 +150,7 @@ export default function SignupView() {
         return;
       }
       const userRole = data.user.role;
+      localStorage.setItem("nestarrival_user", JSON.stringify(data.user));
       if (userRole === "ADMIN") router.push("/admin/dashboard");
       else if (userRole === "OWNER") router.push("/owner/dashboard");
       else router.push("/tenant/dashboard");
@@ -162,10 +180,10 @@ export default function SignupView() {
 
   return (
     <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}>
-      <div className="flex min-h-screen bg-white font-sans overflow-hidden">
+      <div className="flex min-h-[100dvh] flex-col bg-white font-sans overflow-x-hidden lg:flex-row">
         <div className="hidden lg:flex lg:w-3/5 relative bg-[#fdfbf7] items-center justify-center overflow-hidden">
-          <img src="/signup_bg.jpg" alt="Relocation Housing" className="absolute inset-0 w-full h-full object-cover opacity-50" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#fdfbf7] via-[#fdfbf7]/80 to-transparent pointer-events-none" />
+          <Image src="/images/authimg.png" alt="Relocation Housing" fill priority sizes="60vw" className="object-cover opacity-25" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#fdfbf7] via-[#fdfbf7]/2   to-transparent pointer-events-none" />
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#fdfbf7]/60 pointer-events-none" />
           <div className="relative z-10 w-full max-w-2xl px-12 text-[#2c2724]">
             <Link href="/" className="flex items-center space-x-2 group mb-12"><Logo className="h-12 w-12 text-[#cfa052]" /><span className="text-3xl font-black tracking-tight font-serif text-[#2c2724]">Nest<span className="text-[#cfa052]">Arrival</span></span></Link>
@@ -173,9 +191,19 @@ export default function SignupView() {
             <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 0.2 }} className="text-lg font-medium text-[#5c544d] max-w-lg leading-relaxed">Whether you are an incoming tenant or a verified property owner, join the network that guarantees safety, compliance, and refund-backed confidence.</motion.p>
           </div>
         </div>
-        <div className="w-full lg:w-2/5 flex flex-col justify-center px-8 sm:px-16 xl:px-24 py-12 relative z-20 bg-white shadow-[-20px_0_40px_rgba(44,39,36,0.05)] h-screen overflow-y-auto custom-scrollbar">
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }} className="w-full max-w-sm mx-auto my-auto">
-            <div className="lg:hidden flex items-center justify-center space-x-2 mb-10"><Logo className="h-10 w-10 text-[#cfa052]" /><span className="text-2xl font-black font-serif text-[#2c2724]">Nest<span className="text-[#cfa052]">Arrival</span></span></div>
+        <div className="lg:hidden px-5 pt-6">
+          <div className="relative overflow-hidden rounded-[2rem] border border-[#eae1d3] bg-[#fdfbf7] shadow-[0_16px_40px_rgba(44,39,36,0.08)] aspect-[16/11]">
+            <Image src="/images/authimg.png" alt="Relocation Housing" fill sizes="100vw" className="object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#2c2724]/35 via-transparent to-transparent" />
+            <div className="absolute bottom-4 left-4 right-4">
+              <p className="text-[10px] font-black uppercase tracking-[0.35em] text-white/90">Create Your Account</p>
+              <p className="mt-1 text-sm font-serif font-bold text-white">Join a safer housing network built for newcomers.</p>
+            </div>
+          </div>
+        </div>
+        <div className="w-full lg:w-2/5 flex flex-1 flex-col justify-center px-5 sm:px-8 lg:px-16 xl:px-24 py-8 lg:py-12 relative z-20 bg-white shadow-none lg:shadow-[-20px_0_40px_rgba(44,39,36,0.05)] lg:h-[100dvh] lg:overflow-y-auto custom-scrollbar">
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }} className="w-full max-w-md mx-auto my-auto">
+            <div className="lg:hidden flex items-center justify-center space-x-2 mb-8 mt-2"><Logo className="h-10 w-10 text-[#cfa052]" /><span className="text-2xl font-black font-serif text-[#2c2724]">Nest<span className="text-[#cfa052]">Arrival</span></span></div>
             
             {/* Step Progress Stepper */}
             <div className="flex items-center gap-2 mb-6">
@@ -205,7 +233,7 @@ export default function SignupView() {
                     <button type="button" onClick={() => setRole("TENANT")} className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-xl transition-all cursor-pointer ${role === "TENANT" ? "bg-white text-[#2c2724] shadow-sm" : "text-[#8a7d6a] hover:text-[#2c2724]"}`}>Tenant</button>
                     <button type="button" onClick={() => setRole("OWNER")} className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-xl transition-all cursor-pointer ${role === "OWNER" ? "bg-white text-[#2c2724] shadow-sm" : "text-[#8a7d6a] hover:text-[#2c2724]"}`}>Owner</button>
                   </div>
-                  <div className="mb-6 flex justify-center"><GoogleLogin onSuccess={handleGoogleSuccess} onError={() => setError("Google signup failed.")} theme="outline" size="large" width="384" text="signup_with" shape="pill" /></div>
+                  <div className="mb-6 flex w-full justify-center overflow-hidden"><GoogleLogin onSuccess={handleGoogleSuccess} onError={() => setError("Google signup failed.")} theme="outline" size="large" width={300} text="signup_with" shape="pill" /></div>
                   <div className="flex items-center gap-4 mb-6"><div className="h-px bg-[#eae1d3] flex-1"></div><span className="text-xs font-bold text-[#a89e8d] uppercase tracking-wider">Or email</span><div className="h-px bg-[#eae1d3] flex-1"></div></div>
                   <form onSubmit={handleNext} className="space-y-4">
                     <div>

@@ -50,9 +50,9 @@ export default function VisionSection() {
                 <span className="text-[9px] bg-[#cfa052]/10 text-[#cfa052] font-extrabold border border-[#cfa052]/20 rounded-full px-2 py-0.5 uppercase">Verified</span>
               </div>
 
-              <div className="flex justify-center py-2">
+              {/* <div className="flex justify-center py-2">
                 <div className="w-0.5 h-8 border-r-2 border-dashed border-[#cfa052]/40" />
-              </div>
+              </div> */}
 
               <div className="bg-[#fdfbf7] rounded-2xl border border-[#eae1d3] p-4 shadow-sm flex items-center justify-between animate-float">
                 <div className="flex items-center space-x-3">

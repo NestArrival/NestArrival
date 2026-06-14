@@ -38,6 +38,14 @@ body {
   overflow-x: hidden;
 }
 
+@keyframes slow-drift {
+  0%, 100% { transform: scale(1.08) translateX(0px); }
+  50%       { transform: scale(1.12) translateX(-18px); }
+}
+.animate-slow-drift {
+  animation: slow-drift 30s ease-in-out infinite;
+}
+
 /* Serif Font Utility */
 .font-serif {
   font-family: var(--font-playfair), "Playfair Display", Georgia, "Times New Roman", serif;
